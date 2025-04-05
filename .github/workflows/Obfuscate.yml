@@ -1,0 +1,30 @@
+name: Build Obfuscate BPB Panel
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - run: npm install -g javascript-obfuscator
+
+      - run: curl -sS -o origin.js https://raw.githubusercontent.com/bia-pain-bache/BPB-Worker-Panel/main/build/unobfuscated-worker.js
+
+      - run: |
+          javascript-obfuscator origin.js --output _worker.js \
+          --compact true \
+          --string-array true \
+          --string-array-threshold 0.75 \
+          --transform-object-keys true
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'Optimized BPB worker'
